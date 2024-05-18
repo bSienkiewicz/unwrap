@@ -3,10 +3,10 @@ import React, { useEffect } from "react";
 import { useRouter } from 'next/navigation'
 
 const page = () => {
-  const [eventName, setEventName] = React.useState("");
-  const [eventDescription, setEventDescription] = React.useState("");
-  const [eventParticipants, setEventParticipants] = React.useState([]);
-  const [newParticipant, setNewParticipant] = React.useState("");
+  const [eventName, setEventName] = React.useState<string>("");
+  const [eventDescription, setEventDescription] = React.useState<string>("");
+  const [eventParticipants, setEventParticipants] = React.useState<string[]>([]);
+  const [newParticipant, setNewParticipant] = React.useState<string>("");
   const participantRef = React.useRef<HTMLInputElement>(null);
   const router = useRouter()
 
@@ -72,7 +72,7 @@ const page = () => {
   const handleSubmit = async() => {
     const data = { eventName, eventDescription, eventParticipants };
     try {
-      
+
       const response = await fetch("/api/event", {
         method: "POST",
         headers: {
