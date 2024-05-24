@@ -1,14 +1,19 @@
 "use client";
-import React, { useEffect } from "react";
-import { useRouter } from 'next/navigation'
+import React, { useEffect, useRef } from "react";
+import { useRouter } from "next/navigation";
+import test from "@/lib/postgres";
+import Input from "@/components/input";
 
 const page = () => {
   const [eventName, setEventName] = React.useState<string>("");
   const [eventDescription, setEventDescription] = React.useState<string>("");
-  const [eventParticipants, setEventParticipants] = React.useState<string[]>([]);
+  const [eventParticipants, setEventParticipants] = React.useState<string[]>(
+    []
+  );
   const [newParticipant, setNewParticipant] = React.useState<string>("");
   const participantRef = React.useRef<HTMLInputElement>(null);
-  const router = useRouter()
+  const router = useRouter();
+  const submitButton = React.useRef<HTMLButtonElement>(null);
 
   const updateLocalStorage = (
     newName: string,
@@ -46,6 +51,14 @@ const page = () => {
     }
   }, []);
 
+  useEffect(() => {
+    if (eventParticipants.length >= 3 && eventName !== "") {
+      if (submitButton.current) submitButton.current.disabled = false;
+    } else {
+      if (submitButton.current) submitButton.current.disabled = true;
+    }
+  }, [eventParticipants, eventName]);
+
   const handleEventNameChange = (e: string) => {
     setEventName(e);
     updateLocalStorage(e, eventDescription, eventParticipants);
@@ -57,6 +70,7 @@ const page = () => {
   };
 
   const handleAddParticipant = (e: string) => {
+    if (e.length < 2) return;
     const newParticipants = [...eventParticipants, e];
     setEventParticipants(newParticipants);
     updateLocalStorage(eventName, eventDescription, newParticipants);
@@ -69,88 +83,124 @@ const page = () => {
     updateLocalStorage(eventName, eventDescription, newParticipants);
   };
 
-  const handleSubmit = async() => {
+  const handleSubmit = async () => {
     const data = { eventName, eventDescription, eventParticipants };
-    try {
+    if (eventParticipants.length < 3 || eventName === "") return;
 
-      const response = await fetch("/api/event", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-      });
+    if (submitButton.current) submitButton.current.disabled = true;
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_BASE_URL}/api/hello`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(data),
+        }
+      );
 
       if (response.ok) {
         const result = await response.json();
+        const eventID = result.event.rows[0].eventunique;
         console.log(result);
         if (typeof window !== "undefined") localStorage.removeItem("event");
-        router.push(`/share/${result._id}`);
-        
+        if (eventID) {
+          router.push(`/share/${eventID}`);
+        } else {
+          console.error("Error creating event:", result.error);
+          // TODO: Handle error
+        }
       } else {
         const result = await response.json();
         console.log(result);
       }
     } catch (error) {
-      // Handle network error
+      // TODO: Handle error
     }
   };
 
   return (
-    <main className="w-svw h-svh flex justify-center items-center bg-white">
-      <div className="flex flex-col text-black gap-3">
-        <label htmlFor="eventName">Event Name</label>
-        <input
-          type="text"
-          className="border border-black"
-          value={eventName}
-          onChange={(e) => handleEventNameChange(e.target.value)}
-        />
-        <label htmlFor="eventDescription">Event Description</label>
-        <textarea
-          rows={6}
-          className="border border-black"
-          value={eventDescription}
-          onChange={(e) => handleEventDescriptionChange(e.target.value)}
-        />
-        <label htmlFor="eventParticipants">Participants</label>
-        <div className="flex gap-2">
+    <div className="w-full mx-auto overflow-auto py-8">
+      <h3 className="text-2xl mb-4 overflow-auto">Create a new event</h3>
+      <div className="">
+        <div className="flex flex-col text-black gap-3">
+          <label htmlFor="eventName">Event Name</label>
           <input
-            ref={participantRef}
             type="text"
-            className="border border-black"
-            value={newParticipant}
-            onChange={(e) => setNewParticipant(e.target.value)}
+            className="border border-stone-300 rounded-md px-3 py-2 bg-white shadow-md"
+            value={eventName}
+            onChange={(e) => handleEventNameChange(e.target.value)}
           />
+          <label htmlFor="eventDescription">Event Description</label>
+          <textarea
+            rows={6}
+            className="border border-stone-300 rounded-md px-3 py-2 bg-white shadow-md"
+            value={eventDescription}
+            onChange={(e) => handleEventDescriptionChange(e.target.value)}
+          />
+          <label htmlFor="eventParticipants">Participants</label>
+          <div className="flex gap-2 items-center">
+            <input
+              ref={participantRef}
+              type="text"
+              className="border border-stone-300 rounded-md px-3 py-2 bg-white shadow-md flex-1"
+              value={newParticipant}
+              onChange={(e) => setNewParticipant(e.target.value)}
+            />
+            <button
+              type="button"
+              className="bg-black text-white h-fit py-2 px-2 rounded-md shadow-md"
+              onClick={() => {
+                handleAddParticipant(newParticipant);
+                if (participantRef.current) participantRef.current.focus(); //refocus on input
+              }}
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="w-5 h-5"
+                viewBox="0 0 448 512"
+              >
+                <path
+                  fill="currentcolor"
+                  d="M256 80c0-17.7-14.3-32-32-32s-32 14.3-32 32V224H48c-17.7 0-32 14.3-32 32s14.3 32 32 32H192V432c0 17.7 14.3 32 32 32s32-14.3 32-32V288H400c17.7 0 32-14.3 32-32s-14.3-32-32-32H256V80z"
+                />
+              </svg>
+            </button>
+          </div>
+          {eventParticipants && (
+            <div className="flex flex-wrap gap-3">
+              {eventParticipants.map((participant, index) => (
+                <div
+                  key={index}
+                  className="bg-black text-white p-2 rounded-lg flex items-center gap-2 cursor-pointer text-xs"
+                  onClick={() => handleRemoveParticipant(index)}
+                >
+                  {participant}
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="w-4 h-4"
+                    viewBox="0 0 512 512"
+                  >
+                    <path
+                      fill="currentcolor"
+                      d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM175 175c9.4-9.4 24.6-9.4 33.9 0l47 47 47-47c9.4-9.4 24.6-9.4 33.9 0s9.4 24.6 0 33.9l-47 47 47 47c9.4 9.4 9.4 24.6 0 33.9s-24.6 9.4-33.9 0l-47-47-47 47c-9.4 9.4-24.6 9.4-33.9 0s-9.4-24.6 0-33.9l47-47-47-47c-9.4-9.4-9.4-24.6 0-33.9z"
+                    />
+                  </svg>
+                </div>
+              ))}
+            </div>
+          )}
           <button
-            type="button"
-            className="bg-teal-500 text-black mt-4"
-            onClick={() => {
-              handleAddParticipant(newParticipant);
-              if (participantRef.current) participantRef.current.focus(); //refocus on input
-            }}
+            className="bg-black text-white h-fit py-2 px-2 rounded-md shadow-md disabled:!bg-gray-400 disabled:cursor-not-allowed transition-all"
+            onClick={handleSubmit}
+            ref={submitButton}
           >
-            Add Participant
+            Create an event
           </button>
         </div>
-        {eventParticipants && (
-          <div className="flex flex-wrap">
-            {eventParticipants.map((participant, index) => (
-              <div
-                key={index}
-                className="bg-red-400 text-white p-2 rounded-lg"
-                onClick={() => handleRemoveParticipant(index)}
-              >
-                {participant}
-              </div>
-            ))}
-          </div>
-        )}
-        <button className="bg-teal-500 text-black mt-4" onClick={handleSubmit}>
-          Submit
-        </button>
       </div>
-    </main>
+    </div>
   );
 };
 

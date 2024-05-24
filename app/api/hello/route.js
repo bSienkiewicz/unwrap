@@ -21,18 +21,6 @@ function shuffleParticipants(array) {
   return array;
 }
 
-export async function GET(request) {
-  const { searchParams } = request.nextUrl;
-  const eventUnique = searchParams.get("event");
-
-  const eventParticipants =
-    await sql`SELECT * FROM Participants WHERE eventunique = ${eventUnique}`;
-  const eventDetails =
-    await sql`SELECT * FROM Events WHERE eventUnique = ${eventUnique}`;
-
-  return NextResponse.json({ eventParticipants, eventDetails });
-}
-
 export async function POST(request) {
   const data = await request.json();
   console.log(data);
@@ -73,7 +61,7 @@ export async function POST(request) {
     const event =
       await sql`INSERT INTO Events (name, description, eventUnique) VALUES (${eventName}, ${eventDescription}, ${eventUnique}) RETURNING *`;
 
-    console.log(event);
+      console.log(event)
 
     const shuffledParticipants = shuffleParticipants([...eventParticipants]);
 
