@@ -1,8 +1,7 @@
 "use client";
 import React, { useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
-import test from "@/lib/postgres";
-import Input from "@/components/input";
+import { truncate } from "@/lib/functions";
 
 const page = () => {
   const [eventName, setEventName] = React.useState<string>("");
@@ -90,7 +89,7 @@ const page = () => {
     if (submitButton.current) submitButton.current.disabled = true;
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BASE_URL}/api/hello`,
+        `${process.env.NEXT_PUBLIC_URL}/api/hello`,
         {
           method: "POST",
           headers: {
@@ -121,22 +120,24 @@ const page = () => {
   };
 
   return (
-    <div className="w-full mx-auto overflow-auto py-8">
+    <div className="w-full overflow-auto py-8 max-w-[1200px] mx-auto">
       <h3 className="text-2xl mb-4 overflow-auto">Create a new event</h3>
       <div className="">
-        <div className="flex flex-col text-black gap-3">
+        <div className="flex flex-col gap-3">
           <label htmlFor="eventName">Event Name</label>
           <input
             type="text"
-            className="border border-stone-300 rounded-md px-3 py-2 bg-white shadow-md"
+            className="border border-neutral-600 rounded-md px-3 py-2 bg-black"
             value={eventName}
+            maxLength={30}
             onChange={(e) => handleEventNameChange(e.target.value)}
           />
           <label htmlFor="eventDescription">Event Description</label>
           <textarea
             rows={6}
-            className="border border-stone-300 rounded-md px-3 py-2 bg-white shadow-md"
+            className="border border-neutral-600 rounded-md px-3 py-2 bg-black"
             value={eventDescription}
+            maxLength={200}
             onChange={(e) => handleEventDescriptionChange(e.target.value)}
           />
           <label htmlFor="eventParticipants">Participants</label>
@@ -144,13 +145,14 @@ const page = () => {
             <input
               ref={participantRef}
               type="text"
-              className="border border-stone-300 rounded-md px-3 py-2 bg-white shadow-md flex-1"
+              className="border border-neutral-600 rounded-md px-3 py-2 bg-black flex-1"
               value={newParticipant}
+              maxLength={50}
               onChange={(e) => setNewParticipant(e.target.value)}
             />
             <button
               type="button"
-              className="bg-black text-white h-fit py-2 px-2 rounded-md shadow-md"
+              className="bg-orange-550 text-black h-fit py-2 px-2 rounded-md shadow-md hover:bg-orange-600 transition-all"
               onClick={() => {
                 handleAddParticipant(newParticipant);
                 if (participantRef.current) participantRef.current.focus(); //refocus on input
@@ -173,10 +175,10 @@ const page = () => {
               {eventParticipants.map((participant, index) => (
                 <div
                   key={index}
-                  className="bg-black text-white p-2 rounded-lg flex items-center gap-2 cursor-pointer text-xs"
+                  className="border-orange-550 text-white border p-2 rounded-full flex items-center gap-2 cursor-pointer text-xs"
                   onClick={() => handleRemoveParticipant(index)}
                 >
-                  {participant}
+                  {truncate(participant, 30)}
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     className="w-4 h-4"
@@ -192,7 +194,7 @@ const page = () => {
             </div>
           )}
           <button
-            className="bg-black text-white h-fit py-2 px-2 rounded-md shadow-md disabled:!bg-gray-400 disabled:cursor-not-allowed transition-all"
+            className="bg-orange-550 text-black h-fit py-2 px-2 rounded-full shadow-md disabled:!bg-orange-550/40 disabled:cursor-not-allowed hover:bg-orange-550/80 transition-all text-2xl mt-8"
             onClick={handleSubmit}
             ref={submitButton}
           >

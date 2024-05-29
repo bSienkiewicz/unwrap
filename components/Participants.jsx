@@ -1,4 +1,5 @@
 "use client";
+import { truncate } from "@/lib/functions";
 import React, { useEffect, useState } from "react";
 
 const Participants = (props) => {
@@ -7,7 +8,7 @@ const Participants = (props) => {
   const handleParticipantClicked = (participantUnique) => {
     setShared([...shared, participantUnique]);
 
-    const url = `${process.env.NEXT_PUBLIC_BASE_URL}/event/${participantUnique}`;
+    const url = `${process.env.NEXT_PUBLIC_URL}/event/${participantUnique}`;
     navigator.clipboard.writeText(url);
     console.log("URL copied to clipboard");
   };
@@ -20,13 +21,13 @@ const Participants = (props) => {
     <>
       {Object.values(props.participants).map((participant, index) => (
         <div
-          className={`${isShared(participant.participantunique) && "bg-stone-100"} border-stone-300 rounded-md border px-3 py-1 text-xl cursor-pointer shadow-md hover:shadow-lg transition-all flex items-center gap-5`}
+          className={`${isShared(participant.participantunique) && "bg-neutral-800"} border-neutral-600 rounded-md border px-3 py-1 text-xl cursor-pointer shadow-md hover:shadow-lg transition-all flex items-center gap-5`}
           onClick={() =>
             handleParticipantClicked(participant.participantunique)
           }
           key={index}
         >
-          <p className="flex-1">{participant.name}</p>
+          <p className="flex-1">{truncate(participant.name, 30)}</p>
           <div
             className={`h-2 w-2 ${
               participant.drew ? "bg-green-500" : "bg-red-500"

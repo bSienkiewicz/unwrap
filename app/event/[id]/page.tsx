@@ -1,10 +1,10 @@
 import React from "react";
+import Confirm from "./confirm";
 
 const fetchData = async (id: string) => {
   try {
-    console.log(id);
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_BASE_URL}/api/event_assignment?unique=${id}`,
+      `${process.env.NEXT_PUBLIC_URL}/api/event_assignment?unique=${id}`,
       {
         method: "GET",
         headers: {
@@ -23,7 +23,7 @@ const fetchData = async (id: string) => {
 const updatePreferences = async (id: string, preferences: string) => {
   try {
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_BASE_URL}/api/event_assignment?unique=${id}`,
+      `${process.env.NEXT_PUBLIC_URL}/api/event_assignment?unique=${id}`,
       {
         method: "PUT",
         headers: {
@@ -42,14 +42,10 @@ const updatePreferences = async (id: string, preferences: string) => {
 const page = async ({ params }: { params: { id: string } }) => {
   const data = await fetchData(params.id);
   const participant = data.response.rows[0];
-  console.log(participant);
 
   return (
-    <div className="">
-      <div>name:{participant.name}</div>
-      <div>assigned_to: {participant.assignedto}</div>
-      <div>event: {participant.drew.toString()}</div>
-      <div>preferences: {participant.preferences}</div>
+    <div className="w-full text-center max-w-[1200px] mx-auto">
+      <Confirm participant={participant} />
     </div>
   );
 };
