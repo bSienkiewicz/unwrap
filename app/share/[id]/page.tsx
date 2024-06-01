@@ -3,7 +3,6 @@ import Participants from "@/components/Participants";
 
 const fetchData = async (id: string) => {
   try {
-    console.log(id);
     const response = await fetch(
       `${process.env.NEXT_PUBLIC_URL}/api/event?event=${id}`,
       {
@@ -11,6 +10,7 @@ const fetchData = async (id: string) => {
         cache: "no-cache",
       }
     );
+    // TODO: Error with passing the data to server. Fix it.
     return response.json();
   } catch (error) {
     console.error(error);

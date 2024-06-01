@@ -23,7 +23,9 @@ export async function PUT(request) {
   const data = await request.json();
   console.log(data);
 
-  const participant_unique = data.participant_unique;
+  const { searchParams } = request.nextUrl;
+  const participant_unique = searchParams.get("unique");
+  console.log("🚀 ~ PUT ~ participant_unique:", participant_unique)
   const preferences = data.preferences;
 
   try {

@@ -10,6 +10,7 @@ const fetchData = async (id: string) => {
         headers: {
           "Content-Type": "application/json",
         },
+        cache: "no-cache",
       }
     );
     return response.json();
@@ -20,24 +21,6 @@ const fetchData = async (id: string) => {
   }
 };
 
-const updatePreferences = async (id: string, preferences: string) => {
-  try {
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_URL}/api/event_assignment?unique=${id}`,
-      {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ preferences }),
-      }
-    );
-    return response.json();
-  } catch (error) {
-    console.error(error);
-    return null;
-  }
-};
 
 const page = async ({ params }: { params: { id: string } }) => {
   const data = await fetchData(params.id);

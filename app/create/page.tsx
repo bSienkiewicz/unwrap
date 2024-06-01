@@ -1,7 +1,9 @@
 "use client";
 import React, { useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { truncate } from "@/lib/functions";
+import { truncate } from "@/lib/utils";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faArrowUp, faPlus, faTimes, faTimesCircle } from "@fortawesome/free-solid-svg-icons";
 
 const page = () => {
   const [eventName, setEventName] = React.useState<string>("");
@@ -88,16 +90,13 @@ const page = () => {
 
     if (submitButton.current) submitButton.current.disabled = true;
     try {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_URL}/api/hello`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(data),
-        }
-      );
+      const response = await fetch(`${process.env.NEXT_PUBLIC_URL}/api/hello`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
 
       if (response.ok) {
         const result = await response.json();
@@ -127,16 +126,20 @@ const page = () => {
           <label htmlFor="eventName">Event Name</label>
           <input
             type="text"
-            className="border border-neutral-600 rounded-md px-3 py-2 bg-black"
+            className="border border-neutral-600 rounded-md px-3 py-2 bg-black placeholder:opacity-50"
             value={eventName}
+            id="eventName"
+            placeholder="Great corporate gift-giving"
             maxLength={30}
             onChange={(e) => handleEventNameChange(e.target.value)}
           />
           <label htmlFor="eventDescription">Event Description</label>
           <textarea
             rows={6}
-            className="border border-neutral-600 rounded-md px-3 py-2 bg-black"
+            className="border border-neutral-600 rounded-md px-3 py-2 bg-black placeholder:opacity-50"
             value={eventDescription}
+            id="eventDescription"
+            placeholder="The theme of this year's event - holidays"
             maxLength={200}
             onChange={(e) => handleEventDescriptionChange(e.target.value)}
           />
@@ -145,8 +148,10 @@ const page = () => {
             <input
               ref={participantRef}
               type="text"
-              className="border border-neutral-600 rounded-md px-3 py-2 bg-black flex-1"
+              id="eventParticipants"
+              className="border border-neutral-600 rounded-md px-3 py-2 bg-black flex-1 placeholder:opacity-50"
               value={newParticipant}
+              placeholder="John"
               maxLength={50}
               onChange={(e) => setNewParticipant(e.target.value)}
             />
@@ -158,16 +163,7 @@ const page = () => {
                 if (participantRef.current) participantRef.current.focus(); //refocus on input
               }}
             >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="w-5 h-5"
-                viewBox="0 0 448 512"
-              >
-                <path
-                  fill="currentcolor"
-                  d="M256 80c0-17.7-14.3-32-32-32s-32 14.3-32 32V224H48c-17.7 0-32 14.3-32 32s14.3 32 32 32H192V432c0 17.7 14.3 32 32 32s32-14.3 32-32V288H400c17.7 0 32-14.3 32-32s-14.3-32-32-32H256V80z"
-                />
-              </svg>
+              <FontAwesomeIcon icon={faPlus} />
             </button>
           </div>
           {eventParticipants && (
@@ -179,16 +175,7 @@ const page = () => {
                   onClick={() => handleRemoveParticipant(index)}
                 >
                   {truncate(participant, 30)}
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="w-4 h-4"
-                    viewBox="0 0 512 512"
-                  >
-                    <path
-                      fill="currentcolor"
-                      d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM175 175c9.4-9.4 24.6-9.4 33.9 0l47 47 47-47c9.4-9.4 24.6-9.4 33.9 0s9.4 24.6 0 33.9l-47 47 47 47c9.4 9.4 9.4 24.6 0 33.9s-24.6 9.4-33.9 0l-47-47-47 47c-9.4 9.4-24.6 9.4-33.9 0s-9.4-24.6 0-33.9l47-47-47-47c-9.4-9.4-9.4-24.6 0-33.9z"
-                    />
-                  </svg>
+                  <FontAwesomeIcon icon={faTimesCircle} className="text-lg" />
                 </div>
               ))}
             </div>
@@ -197,8 +184,7 @@ const page = () => {
             className="bg-orange-550 text-black h-fit py-2 px-2 rounded-full shadow-md disabled:!bg-orange-550/40 disabled:cursor-not-allowed hover:bg-orange-550/80 transition-all text-2xl mt-8"
             onClick={handleSubmit}
             ref={submitButton}
-          >
-            Create an event
+          >Create an event
           </button>
         </div>
       </div>
