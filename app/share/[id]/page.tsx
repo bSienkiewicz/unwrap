@@ -4,6 +4,7 @@ import toast from "react-hot-toast";
 
 const fetchData = async (id: string) => {
   try {
+    console.log(process.env.NEXT_PUBLIC_URL);
     const response = await fetch(
       `${process.env.NEXT_PUBLIC_URL}/api/event?event=${id}`,
       {
@@ -11,7 +12,6 @@ const fetchData = async (id: string) => {
         cache: "no-cache",
       }
     );
-    console.log(response);
     // TODO: Error with passing the data to server. Fix it.
     return response.json();
   } catch (error) {
@@ -23,6 +23,10 @@ const fetchData = async (id: string) => {
 
 const SharePage = async ({ params }: { params: { id: string } }) => {
   const data = await fetchData(params.id);
+  if (data === null) {
+    return <div>Error fetching event data. Please try again later.</div>;
+  }
+
   const participants = data.eventParticipants.rows;
   const details = data.eventDetails.rows[0];
   return (
