@@ -18,10 +18,6 @@ const Confirm = (props: any) => {
     setClicked(true);
   };
 
-  useEffect(() => {
-    console.log(props);
-  }, []);
-
   const updatePreferences = async (id: string, preferences: string) => {
     setPreferences(preferences);
     try {
@@ -38,8 +34,6 @@ const Confirm = (props: any) => {
           }),
         }
       );
-      // print response body
-      console.log(await response.json());
       return response.json();
     } catch (error) {
       console.error(error);

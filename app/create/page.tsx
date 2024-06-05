@@ -3,7 +3,13 @@ import React, { useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { truncate } from "@/lib/utils";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faArrowUp, faPlus, faTimes, faTimesCircle } from "@fortawesome/free-solid-svg-icons";
+import {
+  faArrowUp,
+  faPlus,
+  faTimes,
+  faTimesCircle,
+} from "@fortawesome/free-solid-svg-icons";
+import toast from "react-hot-toast";
 
 const page = () => {
   const [eventName, setEventName] = React.useState<string>("");
@@ -84,38 +90,56 @@ const page = () => {
     updateLocalStorage(eventName, eventDescription, newParticipants);
   };
 
+  const createEvent = async (data: any) => {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_URL}/api/event`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+      throw new Error("Error creating event");
+    }
+
+    const result = await response.json();
+    const eventID = result.event.rows[0].eventunique;
+
+    if (!eventID) {
+      throw new Error("Error creating event");
+    }
+
+    return eventID;
+  };
+
   const handleSubmit = async () => {
     const data = { eventName, eventDescription, eventParticipants };
+
     if (eventParticipants.length < 3 || eventName === "") return;
 
     if (submitButton.current) submitButton.current.disabled = true;
-    try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_URL}/api/hello`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-      });
 
-      if (response.ok) {
-        const result = await response.json();
-        const eventID = result.event.rows[0].eventunique;
-        console.log(result);
+    toast.promise(createEvent(data), {
+      loading: "Creating event...",
+      success: (eventID) => {
         if (typeof window !== "undefined") localStorage.removeItem("event");
-        if (eventID) {
-          router.push(`/share/${eventID}`);
-        } else {
-          console.error("Error creating event:", result.error);
-          // TODO: Handle error
-        }
-      } else {
-        const result = await response.json();
-        console.log(result);
-      }
-    } catch (error) {
-      // TODO: Handle error
-    }
+        router.push(`/share/${eventID}`);
+        return "Event created!";
+      },
+      error: (error) => {
+        console.error("Error creating event:", error);
+        return "Error creating event";
+      },
+    });
+    // try {
+    //   const eventID = await createEvent(data);
+
+    //   if (typeof window !== "undefined") localStorage.removeItem("event");
+    //   router.push(`/share/${eventID}`);
+    // } catch (error) {
+    //   console.error("Error creating event:", error);
+    // }
   };
 
   return (
@@ -184,7 +208,12 @@ const page = () => {
             className="bg-orange-550 text-black h-fit py-2 px-2 rounded-full shadow-md disabled:!bg-orange-550/40 disabled:cursor-not-allowed hover:bg-orange-550/80 transition-all text-2xl mt-8"
             onClick={handleSubmit}
             ref={submitButton}
-          >Create an event
+          >
+            <FontAwesomeIcon
+              icon={faArrowUp}
+              className="mr-5 rotate-[135deg]"
+            />
+            Create an event
           </button>
         </div>
       </div>

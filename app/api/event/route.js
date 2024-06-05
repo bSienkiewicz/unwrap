@@ -35,7 +35,6 @@ export async function GET(request) {
 
 export async function POST(request) {
   const data = await request.json();
-  console.log(data);
 
   const eventName = data.eventName;
   const eventDescription = data.eventDescription;
@@ -72,8 +71,6 @@ export async function POST(request) {
     const eventUnique = `${generateRandomIdPart()}-${generateRandomIdPart()}-${generateRandomIdPart()}`;
     const event =
       await sql`INSERT INTO Events (name, description, eventUnique) VALUES (${eventName}, ${eventDescription}, ${eventUnique}) RETURNING *`;
-
-    console.log(event);
 
     const shuffledParticipants = shuffleParticipants([...eventParticipants]);
 

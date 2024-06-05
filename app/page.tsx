@@ -1,10 +1,11 @@
 "use client";
 import Image from "next/image";
 import { eventNames } from "process";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Input from "@/components/input";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowUp } from "@fortawesome/free-solid-svg-icons";
+import toast from "react-hot-toast";
 
 export default function Home() {
   const [eventName, setEventName] = useState("");
@@ -16,6 +17,10 @@ export default function Home() {
       localStorage.setItem("event", JSON.stringify({ name: e }));
     }
   };
+
+  useEffect(() => {
+    console.log(process.env.NEXT_PUBLIC_URL);
+  }, []);
 
   return (
     <div className="flex w-full h-full p-12">

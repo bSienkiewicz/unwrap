@@ -21,9 +21,16 @@ function shuffleParticipants(array) {
   return array;
 }
 
+function shuffleParticipants(array) {
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
+  }
+  return array;
+}
+
 export async function POST(request) {
   const data = await request.json();
-  console.log(data);
 
   const eventName = data.eventName;
   const eventDescription = data.eventDescription;
@@ -60,8 +67,6 @@ export async function POST(request) {
     const eventUnique = `${generateRandomIdPart()}-${generateRandomIdPart()}-${generateRandomIdPart()}`;
     const event =
       await sql`INSERT INTO Events (name, description, eventUnique) VALUES (${eventName}, ${eventDescription}, ${eventUnique}) RETURNING *`;
-
-      console.log(event)
 
     const shuffledParticipants = shuffleParticipants([...eventParticipants]);
 

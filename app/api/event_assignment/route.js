@@ -21,11 +21,9 @@ export async function GET(request) {
 
 export async function PUT(request) {
   const data = await request.json();
-  console.log(data);
 
   const { searchParams } = request.nextUrl;
   const participant_unique = searchParams.get("unique");
-  console.log("🚀 ~ PUT ~ participant_unique:", participant_unique)
   const preferences = data.preferences;
 
   try {

@@ -3,6 +3,7 @@ import { truncate } from "@/lib/utils";
 import { faShare } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React, { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 
 const Participants = (props) => {
   const [shared, setShared] = useState([]);
@@ -10,9 +11,14 @@ const Participants = (props) => {
   const handleParticipantClicked = (participantUnique) => {
     setShared([...shared, participantUnique]);
 
-    const url = `${process.env.NEXT_PUBLIC_URL}/event/${participantUnique}`;
-    navigator.clipboard.writeText(url);
-    console.log("URL copied to clipboard");
+    try {
+      const url = `${process.env.NEXT_PUBLIC_URL}/event/${participantUnique}`;
+      navigator.clipboard.writeText(url);
+      toast.success("Link copied to clipboard!");
+    } catch (error) {
+      console.error("Error copying to clipboard:", error);
+      toast.error("Error copying to clipboard");
+    }
   };
 
   const isShared = (participantUnique) => {
